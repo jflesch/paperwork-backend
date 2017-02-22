@@ -278,7 +278,9 @@ def _get_importer(filepath, doc):
 
     if len(importers) < 0:
         raise Exception("Don't know how to import {}".format(filepath))
-    if len(importers) == 1:
+    elif len(importers) == 0:
+        return
+    elif len(importers) == 1:
         return importers[0]
     elif not is_interactive():
         raise Exception(
@@ -302,6 +304,9 @@ def _do_import(filepaths, dsearch, doc, guess_labels=True):
             raise FileNotFoundError(filepath)  # NOQA (Python 3.x only)
         fileuri = GLib.filename_to_uri(filepath)
         importer = _get_importer(filepath, doc)
+        if not importer:
+            print("Nothing to import")
+            return
         if is_verbose():
             print ("File {}: Importer = {}".format(filepath, importer))
         import_result = importer.import_doc(
