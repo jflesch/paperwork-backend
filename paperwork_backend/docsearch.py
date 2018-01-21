@@ -252,7 +252,7 @@ class DocSearch(object):
     LABEL_STEP_UPDATING = "label updating"
     LABEL_STEP_DESTROYING = "label deletion"
 
-    def __init__(self, rootdir, indexdir=None, language=None,
+    def __init__(self, rootdir, indexdir=None, index_in_workdir=None, language=None,
                  use_default_index_client=True):
         """
         Index files in rootdir (see constructor)
@@ -264,16 +264,22 @@ class DocSearch(object):
 
         self.fs = fs.GioFileSystem()
         self.rootdir = self.fs.safe(rootdir)
-
         localdir = os.path.expanduser("~/.local")
-        if indexdir is None:
-            base_data_dir = os.getenv(
-                "XDG_DATA_HOME",
-                os.path.join(localdir, "share")
-            )
-            indexdir = os.path.join(base_data_dir, "paperwork")
+        
+        if self.rootdir is not None and index_in_workdir.lower() == 'true':
+            base_data_dir = self.rootdir
+            localdir = base_data_dir
+            
+        else:
 
-        indexdir = os.path.join(indexdir, "index")
+            if indexdir is None:
+                base_data_dir = os.getenv(
+                    "XDG_DATA_HOME",
+                    os.path.join(localdir, "share")
+                )
+                indexdir = os.path.join(base_data_dir, "paperwork")
+
+        indexdir = os.path.join(base_data_dir, "index")
         label_guesser_dir = os.path.join(indexdir, "label_guessing")
         self.index.open(localdir, base_data_dir, indexdir, label_guesser_dir,
                         rootdir, language=language)
@@ -351,6 +357,7 @@ class DocSearch(object):
 
     def find_documents(self, sentence, limit=None, must_sort=True,
                        search_type='fuzzy'):
+
         return self.index.find_documents(sentence, limit=limit,
                                          must_sort=must_sort,
                                          search_type=search_type)
