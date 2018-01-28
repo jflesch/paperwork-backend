@@ -263,13 +263,14 @@ class DocSearch(object):
             self.index = PaperworkIndexClient()
 
         self.fs = fs.GioFileSystem()
-        self.rootdir = self.fs.safe(rootdir)
+        self.rootdir = self.fs.unsafe(rootdir)
         localdir = os.path.expanduser("~/.local")
         
         if self.rootdir is not None and index_in_workdir.lower() == 'true':
             base_data_dir = self.rootdir
             localdir = base_data_dir
-            
+            indexdir = os.path.join(base_data_dir, "index")            
+
         else:
 
             if indexdir is None:
@@ -277,9 +278,8 @@ class DocSearch(object):
                     "XDG_DATA_HOME",
                     os.path.join(localdir, "share")
                 )
-                indexdir = os.path.join(base_data_dir, "paperwork")
+                indexdir = os.path.join(base_data_dir, "paperwork/index")
 
-        indexdir = os.path.join(base_data_dir, "index")
         label_guesser_dir = os.path.join(indexdir, "label_guessing")
         self.index.open(localdir, base_data_dir, indexdir, label_guesser_dir,
                         rootdir, language=language)
