@@ -252,8 +252,8 @@ class DocSearch(object):
     LABEL_STEP_UPDATING = "label updating"
     LABEL_STEP_DESTROYING = "label deletion"
 
-    def __init__(self, rootdir, indexdir=None, index_in_workdir=None, language=None,
-                 use_default_index_client=True):
+    def __init__(self, rootdir, indexdir=None, language=None,
+                 use_default_index_client=True, index_in_workdir=False):
         """
         Index files in rootdir (see constructor)
         """
@@ -263,22 +263,21 @@ class DocSearch(object):
             self.index = PaperworkIndexClient()
 
         self.fs = fs.GioFileSystem()
-        self.rootdir = self.fs.unsafe(rootdir)
+        self.rootdir = self.fs.safe(rootdir)
         localdir = os.path.expanduser("~/.local")
-        
-        if self.rootdir is not None and index_in_workdir.lower() == 'true':
+
+        if index_in_workdir == True:
+            self.rootdir = self.fs.unsafe(rootdir)
             base_data_dir = self.rootdir
             localdir = base_data_dir
-            indexdir = os.path.join(base_data_dir, "index")            
+            indexdir = os.path.join(base_data_dir, "index")
 
-        else:
-
-            if indexdir is None:
-                base_data_dir = os.getenv(
-                    "XDG_DATA_HOME",
-                    os.path.join(localdir, "share")
-                )
-                indexdir = os.path.join(base_data_dir, "paperwork/index")
+        elif indexdir is None:
+            base_data_dir = os.getenv(
+                "XDG_DATA_HOME",
+                os.path.join(localdir, "share")
+            )
+            indexdir = os.path.join(base_data_dir, "paperwork/index")
 
         label_guesser_dir = os.path.join(indexdir, "label_guessing")
         self.index.open(localdir, base_data_dir, indexdir, label_guesser_dir,

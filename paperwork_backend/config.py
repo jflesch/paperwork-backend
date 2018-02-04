@@ -121,7 +121,6 @@ def get_default_ocr_lang():
         return lang.terminology
     return DEFAULT_OCR_LANG
 
-def get_default_iiw():
     return False
 
 class PaperworkConfig(object):
@@ -142,7 +141,7 @@ class PaperworkConfig(object):
                 "OCR", "Lang", get_default_ocr_lang
             ),
             'index_in_workdir': PaperworkSetting(
-                "Global", "index_in_workdir", get_default_iiw
+                "Global", "index_in_workdir", lambda: False, paperwork_cfg_boolean
             ),
         }
 
